@@ -1,0 +1,40 @@
+﻿@using Services.Models.FantasyHockeyService;
+@model List<DraftKingsPlayerSelection>
+@{ 
+    var tiers = Model.OrderBy(x => x.Tier).GroupBy(x => x.Tier);
+}
+<!DOCTYPE html>
+
+<style>
+    table, th, td {
+        border: 1px solid black;
+    }
+</style>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>DraftKingsPickEm</title>
+</head>
+<body>
+    @foreach(var tier in tiers)
+    {
+        <table>
+            <caption>@tier.Key</caption>
+            <tr>
+                <th>Name</th>
+                <th>Avg last 10</th>
+                <th>Var last 10</th>
+            </tr>
+            @foreach(var player in tier)
+            {
+                <tr>
+                    <td>@player.PlayerName</td>
+                    <td>@player.AvgFPLast10.ToString("F")</td>
+                    <td>@player.VarFPLast10.ToString("F")</td>
+                </tr>
+            }
+        </table>
+    }
+</body>
+</html>

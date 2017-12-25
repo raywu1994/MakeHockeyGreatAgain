@@ -18,34 +18,55 @@ namespace MySportsFeedDriver
         {
 
         }
-        /// <summary>
-        /// Returns player game logs for current season and last season
-        /// </summary>
-        public List<PlayerGameLog> GetPlayerGameLogs(string playerName)
+
+        public List<PlayerGameLog> GetPlayerGameLogs(string[] playerNames)
         {
-            //retrieve this season's and last
             DateTime now = DateTime.Now;
-            string currentSeason = now.Month > 8 ?
-                now.Year.ToString() + "-" + (now.Year + 1).ToString() :
-                (now.Year - 1).ToString() + "-" + now.Year.ToString();
 
-            string lastSeason = now.Month > 8 ?
-                (now.Year - 1).ToString() + "-" + now.Year.ToString() :
-                (now.Year - 2).ToString() + "-" + (now.Year - 1).ToString();
+            string currentSeasonJson = string.Empty;
+            string lastSeasonJson = string.Empty;
 
-            string urlFormat = "https://api.mysportsfeeds.com/v1.1/pull/nhl/{0}-regular/player_gamelogs.json?player={1}";
-            string currentSeasonUrl = string.Format(urlFormat, currentSeason, playerName);
-            string lastSeasonUrl = string.Format(urlFormat, lastSeason, playerName);
+            //check if the file is already saved for today 
+            string fileFormat = "/jsonExports/" + now.ToString("yyyy-MM-dd") + "-{0}.json";
+            if (File.Exists(string.Format(fileFormat,"A")) && File.Exists(string.Format(fileFormat,"B")))
+            {
+                using (StreamReader reader = new StreamReader(string.Format(fileFormat, "A")))
+                {
+                    currentSeasonJson = reader.ReadToEnd();
+                }
 
-            string currentSeasonJson = GetJsonResponse(currentSeasonUrl);
-            string lastSeasonJson = GetJsonResponse(lastSeasonUrl);
+                using (StreamReader reader = new StreamReader(string.Format(fileFormat, "B")))
+                {
+                    lastSeasonJson = reader.ReadToEnd();
+                }
+            }
+            else
+            {
+                //retrieve this season's and last
+                string currentSeason = now.Month > 8 ?
+                    now.Year.ToString() + "-" + (now.Year + 1).ToString() :
+                    (now.Year - 1).ToString() + "-" + now.Year.ToString();
+
+                string lastSeason = now.Month > 8 ?
+                    (now.Year - 1).ToString() + "-" + now.Year.ToString() :
+                    (now.Year - 2).ToString() + "-" + (now.Year - 1).ToString();
+
+                string urlFormat = "https://api.mysportsfeeds.com/v1.1/pull/nhl/{0}-regular/player_gamelogs.json?player={1}";
+                string currentSeasonUrl = string.Format(urlFormat, currentSeason, string.Join(",", playerNames));
+                string lastSeasonUrl = string.Format(urlFormat, lastSeason, string.Join(",", playerNames));
+
+                currentSeasonJson = GetJsonResponse(currentSeasonUrl);
+                lastSeasonJson = GetJsonResponse(lastSeasonUrl);
+
+                File.WriteAllText(string.Format(fileFormat,"A"), currentSeasonJson);
+                File.WriteAllText(string.Format(fileFormat,"B"), lastSeasonJson);
+            }
 
             List<PlayerGameLog> gameLog = MapToPlayerGameLog(currentSeasonJson);
             if (!string.IsNullOrEmpty(lastSeasonJson))
             {
                 gameLog.AddRange(MapToPlayerGameLog(lastSeasonJson));
             }
-
             return gameLog;
         }
 

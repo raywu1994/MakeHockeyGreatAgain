@@ -6,7 +6,7 @@ namespace TestingGround
     {
         static void Main(string[] args)
         {
-            HockeyFantasyService service = new HockeyFantasyService();
+            FantasyHockeyService service = new FantasyHockeyService();
 
             service.Test();
         }
