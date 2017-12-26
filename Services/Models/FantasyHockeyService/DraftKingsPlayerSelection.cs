@@ -5,15 +5,17 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using MathNet.Numerics.Statistics;
+using Services.Models.HockeyFantasyService;
 
 namespace Services.Models.FantasyHockeyService
 {
     public class DraftKingsPlayerSelection
     {
-        public DraftKingsPlayerSelection(string tier, string playerName, List<PlayerGameLog> gameLogs)
+        public DraftKingsPlayerSelection(LineUpData player, List<PlayerGameLog> gameLogs)
         {
-            Tier = tier;
-            PlayerName = playerName;
+            Tier = player.Tier;
+            PlayerName = player.Name;
+            HomeOrAway = player.HomeTeam == player.Team ? "Home" : "Away";
             GameLogs = gameLogs.OrderByDescending(x => x.GameInfo.Date).ToList();
 
             AvgFPLast10 = Statistics.Mean(GameLogs.Select(x => CalculateFanPoints(x)));
@@ -22,6 +24,7 @@ namespace Services.Models.FantasyHockeyService
 
         public string Tier { get; set; }
         public string PlayerName { get; set; }
+        public string HomeOrAway { get; set; }
 
         private List<PlayerGameLog> GameLogs { get; set; }
 

@@ -31,12 +31,17 @@ namespace Services
                 {
                     var values = reader.ReadLine().Replace("\"", string.Empty).Split(',');
 
+                    var gameInfoValues = values[3].Split(' ');
+                    var matchUp = gameInfoValues[0].Split('@');
+
                     lineup.Add(new LineUpData()
                     {
                         Position = values[0],
                         Name = HandleNamingExceptions(values[1]),
                         Tier = values[2],
-                        GameInfo = values[3],
+                        AwayTeam = matchUp[0],
+                        HomeTeam = matchUp[1],
+                        GameDateTime = DateTime.Parse(gameInfoValues[1] + " " + gameInfoValues[2]),
                         AvgPointsPerGame = values[4],
                         Team = values[5]
                     });
@@ -71,7 +76,8 @@ namespace Services
 
             foreach (var player in lineUpData)
             {
-                var newEntry = new DraftKingsPlayerSelection(player.Tier, player.Name, stats[player.Name.Replace(" ","")]);
+                var newEntry = new DraftKingsPlayerSelection(player, stats[player.Name.Replace(" ","")]);
+
 
                 draftKingsPlayerSelections.Add(newEntry);
             }

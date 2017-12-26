@@ -19,10 +19,16 @@
 <body>
     @foreach(var tier in tiers)
     {
-        <table>
+        <button id="@tier.Key-button" class="tier-button">@tier.Key</button>
+    }
+
+    @foreach(var tier in tiers)
+    {
+        <table id="@(tier.Key)-table" class="tier-table">
             <caption>@tier.Key</caption>
             <tr>
                 <th>Name</th>
+                <th>Home/Away</th>
                 <th>Avg last 10</th>
                 <th>Var last 10</th>
             </tr>
@@ -30,6 +36,7 @@
             {
                 <tr>
                     <td>@player.PlayerName</td>
+                    <td>@player.HomeOrAway</td>
                     <td>@player.AvgFPLast10.ToString("F")</td>
                     <td>@player.VarFPLast10.ToString("F")</td>
                 </tr>
@@ -38,3 +45,26 @@
     }
 </body>
 </html>
+
+<script src="~/Scripts/jquery-3.2.1.min.js"></script>
+<script>
+    $(document).ready(function(){
+        $('table').hide();
+        toggleTier('T1');
+    });
+
+    $('.tier-button').click(function () {
+        var tier = this.id.split('-')[0];
+        toggleTier(tier);
+    });
+
+    function toggleTier(tier) {
+        //toggle the others
+        $('.tier-button').show();
+        $('.tier-table').hide();
+        
+        //toggle the one we want to see
+        $('#' + tier + '-table').show();
+        $('#' + tier + '-button').hide();
+    };
+</script>
